@@ -189,7 +189,7 @@ int main()
                 size_t size=0;
                 simtime = simxGetLastCmdTime(clientID);
                 TTimeStamp timestamp = mrpt::system::time_tToTimestamp(static_cast<time_t>(simtime/1000)) + (simtime%1000);
-                action_ptr->get(0)->timestamp = timestamp;
+                //action_ptr->get(0)->timestamp = timestamp;
                 graphslam_engine->_execGraphSlamStep(action_ptr, observations_ptr, observation,size);
             }
             extApi_sleepMs(100);
