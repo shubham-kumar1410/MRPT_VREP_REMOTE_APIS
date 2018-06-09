@@ -14,7 +14,8 @@
 #include "mrpt/graphslam/CGraphSlamEngine.h"
 #include "mrpt/graphslam/apps_related/TUserOptionsChecker.h"
 #include "../../conversions/include/vrep_conversion.h"
-extern "C" 
+#include "mrpt/system/datetime.h"
+extern "C"
 {
     #include "extApi.h"
 }
@@ -38,23 +39,17 @@ CGraphSlamEngine<GRAPH_T>* initGraphslam(mrpt::system::COutputLogger* logger)
     TUserOptionsChecker<GRAPH_T> options_checker;
     options_checker.createDeciderOptimizerMappings();
     options_checker.populateDeciderOptimizerProperties();
-    string node_reg = "CEmptyNRD";
-    string edge_reg = "CEmptyERD";
-    string optimizer = "CEmptyGSO";
+    string node_reg = "CFixedIntervalsNRD";
+    string edge_reg = "CICPCriteriaERD";
+    string optimizer = "CLevMarqGSO";
     string ini_fname = "../config/odometry_2DRangeScans.ini";
     logger->logFmt(LVL_INFO, "Node registration decider: %s", node_reg.c_str());
     logger->logFmt(LVL_INFO, "Edge registration decider: %s", edge_reg.c_str());
     logger->logFmt(LVL_INFO, "graphSLAM Optimizer: %s", optimizer.c_str());
 
-    //CGraphSlamHandler<GRAPH_T> graphslam_handler(logger, &options_checker, true);
-    //graphslam_handler.setFNames(ini_fname, "", "");
-
-    //graphslam_handler.initEngine(node_reg, edge_reg, optimizer);
     mrpt::graphslam::CWindowManager* m_win_manager;
     mrpt::graphslam::CWindowObserver* m_win_observer;
     mrpt::gui::CDisplayWindow3D* m_win;
-
-
     m_win_observer = new CWindowObserver();
     m_win = new CDisplayWindow3D("GraphSlam building procedure", 800, 600);
     m_win->setPos(400, 200);
@@ -67,17 +62,16 @@ CGraphSlamEngine<GRAPH_T>* initGraphslam(mrpt::system::COutputLogger* logger)
     }
 
     logger->logFmt(mrpt::system::LVL_DEBUG, "Initialized CDisplayWindow3D");
-    logger->logFmt(mrpt::system::LVL_DEBUG, "Listening to CDisplayWindow3D events");
 
     m_win_manager = new mrpt::graphslam::CWindowManager();
     m_win_manager->setCDisplayWindow3DPtr(m_win);
     m_win_manager->setWindowObserverPtr(m_win_observer);
-    CGraphSlamEngine<GRAPH_T>* engine = 
+    CGraphSlamEngine<GRAPH_T>* engine =
         new CGraphSlamEngine<GRAPH_T>(ini_fname,"","",m_win_manager,
             options_checker.node_regs_map[node_reg](),
             options_checker.edge_regs_map[edge_reg](),
             options_checker.optimizers_map[optimizer]());
-    return engine;  
+    return engine;
 }
 
 template <class GRAPH_T>
@@ -109,24 +103,36 @@ void saveresults(CGraphSlamEngine<GRAPH_T>* engine,mrpt::system::COutputLogger* 
     else
     {
         createDirectory(m_output_dir_fname);
-        logger->logFmt(mrpt::system::LVL_INFO, "Finished initializing output directory.");        
+        logger->logFmt(mrpt::system::LVL_INFO, "Finished initializing output directory.");
+    }
+    if (m_save_graph)
+    {
+        std::string save_graph_fname = m_output_dir_fname + "/" + m_save_graph_fname;
+        engine->saveGraph(&save_graph_fname);
+    }
+    if (m_save_3DScene)
+    {
+        std::string save_3DScene_fname = m_output_dir_fname + "/" +m_save_3DScene_fname;
+        engine->save3DScene(&save_3DScene_fname);
     }
 
+    if (m_save_map)
+    {
+        mrpt::maps::COccupancyGridMap2D::Ptr map = mrpt::make_aligned_shared<mrpt::maps::COccupancyGridMap2D>();
+        engine->getMap(map);
+        map->saveMetricMapRepresentationToFile(m_output_dir_fname + "/" + m_save_map_fname);
+    }
     engine->generateReportFiles(m_output_dir_fname);
 }
 int main()
 {   /**
-    *This is a sample VREP remote api which fetches the following data from the simulator
-    *- <b>object handle[]</b> -> Using simxGetObjectHandle.
-    *- <b>object position</b> -> Using simxGetObjectPosition
-    *- <b>object velocity</b> -> Using simxGetObjectVelocity
-    *- <b>object quaternion</b> -> Using simxGetObjectQuaternion
-    *
-    * <i> This api also makes use of the conversion methods defined in ../../conversions/vrep_conversion.cpp<i> 
+    * This is a remote api for MRPT graphslam. It fetches data from the simulator and converts the data using the
+    * conversion methods defined in ../../conversions/vrep_conversion.cpp. The converted CObservation2DRangeScan and
+    * CObservationOdometry objects are then used for the slam library.
     */
     simxFinish(-1); //close all existing connections.
     int clientID=simxStart((simxChar*)"127.0.0.1",19997,true,true,2000,5);
-    simxInt handle;
+    simxInt handle,simtime;
     simxFloat position[3],scanningAngle,maxScanDistance;
     simxUChar* dataSignal;
     int dataSignalSize,dataCount;
@@ -166,14 +172,13 @@ int main()
                 bool pose_convert = convert(position,quaternion,sensor_pose);
                 CObservation2DRangeScan obj;
                 bool rangescan_convert = convert(range,dataCount,maxScanDistance,scanningAngle,sensor_pose,obj);
-                printf("Aperture : %f\n",obj.aperture );
                 CObservationOdometry odom;
                 bool odometry_convert = convert(sensor_pose, vel, angularvel,odom);
                 CObservation2DRangeScan::Ptr obs = CObservation2DRangeScan::Create(obj);
                 CActionCollection action;
                 CActionRobotMovement2D myAction;
                 CPose2D sensor_pose_2d = odom.odometry;
-                CActionRobotMovement2D::TMotionModelOptions motion_model_options;          
+                CActionRobotMovement2D::TMotionModelOptions motion_model_options;
                 myAction.computeFromOdometry(sensor_pose_2d,motion_model_options);
                 action.insert(myAction);
                 CSensoryFrame observations;
@@ -182,10 +187,11 @@ int main()
                 CActionCollection::Ptr action_ptr = CActionCollection::Create(action);
                 CSensoryFrame::Ptr observations_ptr = CSensoryFrame::Create(observations);
                 size_t size=0;
+                simtime = simxGetLastCmdTime(clientID);
+                TTimeStamp timestamp = mrpt::system::time_tToTimestamp(static_cast<time_t>(simtime/1000)) + (simtime%1000);
+                action_ptr->get(0)->timestamp = timestamp;
                 graphslam_engine->_execGraphSlamStep(action_ptr, observations_ptr, observation,size);
             }
-            printf("Handle : %u\n",handle);
-            printf("Laser Position : (%f,%f,%f) \n",position[0],position[1],position[2]);
             extApi_sleepMs(100);
         }
         saveresults(graphslam_engine,&logger);

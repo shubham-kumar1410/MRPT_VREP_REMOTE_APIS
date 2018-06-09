@@ -470,7 +470,7 @@ void CGraphSlamEngine<GRAPH_T>::initClass()
 
 	// In case we are given an RGBD TUM Dataset - try and read the info file so
 	// that we know how to play back the GT poses.
-	try
+	/*try
 	{
 		m_info_params.setRawlogFile(m_rawlog_fname);
 		m_info_params.parseFile();
@@ -488,7 +488,7 @@ void CGraphSlamEngine<GRAPH_T>::initClass()
 	{
 		MRPT_LOG_INFO_STREAM("RGBD_TUM info file was not found: " << e.what());
 	}
-
+*/
 	// SLAM evaluation metric
 	m_curr_deformation_energy = 0;
 	if (m_visualize_SLAM_metric)
