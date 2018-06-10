@@ -19,6 +19,5 @@ endif()
 
 add_definitions (-DNON_MATLAB_PARSING)
 add_definitions (-DMAX_EXT_API_CONNECTIONS=255)
-include_directories (config)
 add_executable(graphslamapi remoteApi/graphslam2d_remoteapi.cpp)
 target_link_libraries(graphslamapi vrep_lib pthread rt conversion_lib)
