@@ -158,7 +158,7 @@ int main(int argc, char** argv)
         printf("Simulation started \n");
         while (simxGetConnectionId(clientID)!=-1)
         {
-            simxGetObjectHandle(clientID,"fastHokuyo",&handle,simx_opmode_streaming);//get object handlesimxGetObjectPosition(clientID,handle,-1,position,simx_opmode_streaming); // get object position
+            simxGetObjectHandle(clientID,"Pioneer_p3dx",&handle,simx_opmode_streaming);//get object handlesimxGetObjectPosition(clientID,handle,-1,position,simx_opmode_streaming); // get object position
             simxGetObjectPosition(clientID,handle,-1,position,simx_opmode_streaming); // get object orientation(returns euler angles)
             simxGetObjectQuaternion(clientID,handle,-1,quaternion,simx_opmode_streaming);
             simxGetFloatSignal(clientID,"scanningAngle",&scanningAngle,simx_opmode_streaming);
