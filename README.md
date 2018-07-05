@@ -9,7 +9,7 @@ This repository provides packages and tools for interfacing the Mobile Robot
 Programming Toolkit ([MRPT](http://www.mrpt.org/)) with the V-REP robotics
 simulator. Following is a list of the functionalities that it provides:
 
-* TODO
+* Remote API for MRPT Graphslam.
 * TODO
 * ...
 
@@ -19,12 +19,34 @@ TODO - Describe the layout of each one of the libraries as well as the
 functionality of each one of its subdirectories
 
 ## Installation
+* [Clone the project from Github](https://github.com/MRPT/mrpt_vrep_bridge)
 
-TODO
+* Create an environment variable VREP which contains the path to the VREP directory.
+```bash
+export VREP="path to VREP"
+```
+* Build with cmake
+```bash
+mkdir build && cd build
+cmake ..
+make
+```
+
 
 ## Usage
 
-TODO
+###To run GraphSlam Remote API###
+
+* Run an instance of VREP and load a scene with a fast hokuyu laser scanner.
+* Edit the script of the hokuyu laser by changing the contents of the child script with the one located in *mrpt_graphslam_2d/lua_scripts*
+* Run the executable built by 
+```bash
+./graphslamapi node_reg edge_reg optimizer configuration_file
+```
+The api has been tested with the following specifications:
+	* NodeRegistrationDecider : CFixedIntervalsNRD
+	* EdgeRegistrationDecider : CICPGoodnessERD
+	* Optimizer               : CLevMarqGSO
 
 ## Notes
 
