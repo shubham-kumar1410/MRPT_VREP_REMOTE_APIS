@@ -19,10 +19,10 @@ set(PROJECT_VERSION_MINOR 1)
 set(PROJECT_VERSION_PATCH 0)
 set(PROJECT_VERSION_TWEAK 0)
 string(CONCAT PROJECT_VERSION
-    "${PROJECT_VERSION_MAJOR}."
-    "${PROJECT_VERSION_MINOR}."
-    "${PROJECT_VERSION_PATCH}."
-    "${PROJECT_VERSION_TWEAK}")
+  "${PROJECT_VERSION_MAJOR}."
+  "${PROJECT_VERSION_MINOR}."
+  "${PROJECT_VERSION_PATCH}."
+  "${PROJECT_VERSION_TWEAK}")
 message(STATUS "${PROJECT_NAME} Version: ${PROJECT_VERSION}")
 
 # Where to place compilation targets
@@ -56,6 +56,9 @@ endif()
 
 
 set(PROJECT_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
+
+#clang-format 
+include(cmake/clang-format.cmake)
 
 # Set the standard
 set (CMAKE_C_STANDARD 99)  # Require C99
@@ -95,7 +98,7 @@ message(STATUS "MRPT_VERSION: ${MRPT_VERSION}")
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
-      "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+    "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
 option(BUILD_TESTING "Build all gtests" ON)
@@ -137,7 +140,7 @@ add_subdirectory(conversions)
 ################################################################################
 
 configure_file(cmake/${PROJECT_NAME}ConfigVersion.cmake.in
-    "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake" @ONLY)
+  "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake" @ONLY)
 # TODO - How to use it
 configure_file(cmake/${PROJECT_NAME}ConfigVersion.hpp.in
-    "${PROJECT_BINARY_DIR}/${PROJECT_NAME}.hpp" @ONLY)
+  "${PROJECT_BINARY_DIR}/${PROJECT_NAME}.hpp" @ONLY)

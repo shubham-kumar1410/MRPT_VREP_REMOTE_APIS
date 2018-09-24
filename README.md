@@ -19,7 +19,7 @@ TODO - Describe the layout of each one of the libraries as well as the
 functionality of each one of its subdirectories
 
 ## Installation
-* [Clone the project from Github](https://github.com/MRPT/mrpt_vrep_bridge)
+* [Clone the project from Github](https://github.com/shubham-kumar1410/mrpt_vrep_remoteapi)
 
 * Create an environment variable VREP which contains the path to the VREP directory.
 ```bash

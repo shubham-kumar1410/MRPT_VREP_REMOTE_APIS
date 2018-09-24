@@ -1,0 +1,15 @@
+#!/bin/bash
+set -ev
+
+export VREP_VERSION = 3_5_0
+export VREP=/opt/vrep
+
+git submodule update --init
+
+sudo add-apt-repository ppa:joseluisblancoc/mrpt
+sudo apt-get update
+sudo apt-get install libmrpt-dev mrpt-apps
+
+wget http://coppeliarobotics.com/V-REP_PRO_EDU_V${VREP_VERSION}_64_Linux.tar.gz
+tar -xzf V-REP_PRO_EDU_V${VREP_VERSION}_64_Linux.tar.gz
+sudo mv ./V-REP_PRO_EDU_V${VREP_VERSION}_64_Linux $VREP

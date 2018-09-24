@@ -1,0 +1,12 @@
+#!/bin/bash
+set -ev
+
+export SRC_DIR=`pwd`
+export BUILD_DIR=build
+  
+mkdir $BUILD_DIR
+cd $BUILD_DIR
+cmake $SRC_DIR
+sudo make
+#test
+sudo make test

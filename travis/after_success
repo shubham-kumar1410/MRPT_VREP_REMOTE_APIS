@@ -1,0 +1,4 @@
+#!/bin/sh
+set -ev
+
+#Automatic doxygen documentation generation and uploading

@@ -9,15 +9,12 @@ if (BUILD_TESTING)
 	  include/vrep_conversion.h vrep_conversion.cpp test/runTests.cpp test/convertTest.cpp
 	)
 	add_executable(${CONVERT_TEST_NAME} ${convertTest_sources})
-	target_link_libraries(${CONVERT_TEST_NAME}
-	  gtest pthread ${MRPT_LIBS}
-    )
-    set_target_properties(${CONVERT_TEST_NAME}
-    	PROPERTIES
-    	RUNTIME_OUTPUT_DIRECTORY ${test_output_directory}
-    )
-    add_test(NAME ${CONVERT_TEST_NAME} COMMAND
-    	${test_output_directory}/${CONVERT_TEST_NAME})
+	target_link_libraries(${CONVERT_TEST_NAME} gtest pthread ${MRPT_LIBS} )
+  set_target_properties(${CONVERT_TEST_NAME} PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${test_output_directory}
+  )
+  add_test(NAME ${CONVERT_TEST_NAME} COMMAND
+    ${test_output_directory}/${CONVERT_TEST_NAME})
 endif()
 
 set (SOURCES
@@ -26,5 +23,5 @@ set (SOURCES
 include_directories (include)
 add_library (conversion_lib SHARED ${SOURCES})
 target_link_libraries(
-  conversion_lib ${MRPT_LIBS}
+  conversion_lib PUBLIC ${MRPT_LIBS}
 )
